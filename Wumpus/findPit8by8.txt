@@ -1,0 +1,27 @@
+# This describes a Naive Bayes network for determining whether a given cell contains a pit, based
+# on its neighbors. It assumes the following:
+# * The dungeon grid is 8 cells by 8 cells
+# * The probability of a pit in a given cell is 1/24
+
+OUTPUTS isPit_r_c
+value yes 0.042
+value no  0.958
+
+INPUTS
+# Values are followed by 3 probabilities: p(value | isPit_r_c = yes)  p(value | isPit_r_c = no)   p(value)
+
+ATTRIBUTE slimeAt_r-1_c
+value yes  1.0 0.17 0.17
+value no   0.0 0.83 0.83
+
+ATTRIBUTE slimeAt_r+1_c
+value yes  1.0 0.17 0.17
+value no   0.0 0.83 0.83
+
+ATTRIBUTE slimeAt_r_c-1
+value yes  1.0 0.17 0.17
+value no   0.0 0.83 0.83
+
+ATTRIBUTE slimeAt_r_c+1
+value yes  1.0 0.17 0.17
+value no   0.0 0.83 0.83

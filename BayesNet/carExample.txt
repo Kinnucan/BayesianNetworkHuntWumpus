@@ -1,0 +1,47 @@
+
+Nodes
+BatteryCharged True False
+RadioWorks True False
+IgnitionWorks True False
+GasInTank True False
+CarStarts True False
+--- 
+
+
+Edges
+BatteryCharged RadioWorks
+BatteryCharged IgnitionWorks
+IgnitionWorks CarStarts
+GasInTank CarStarts
+---
+
+TABLES
+
+CPT BatteryCharged
+[] True = 0.998 False = 0.002
+---
+
+
+CPT RadioWorks
+[BatteryCharged = True] True = 0.9 False = 0.1
+[BatteryCharged = False] True = 0.2 False = 0.8
+---
+
+
+CPT IgnitionWorks
+[BatteryCharged = True] True = 0.95 False = 0.05
+[BatteryCharged = False] True = 0.05 False = 0.95
+--- 
+
+
+CPT GasInTank
+[] True = 0.99 False = 0.01
+---
+
+
+CPT CarStarts
+[IgnitionWorks = True GasInTank = True] True = 0.99 False = 0.01
+[IgnitionWorks = True GasInTank = False] True = 0.10 False = 0.90
+[IgnitionWorks = False GasInTank = True] True = 0.001 False = 0.999
+[IgnitionWorks = False GasInTank = False] True = 0.00001 False = 0.99999
+---
