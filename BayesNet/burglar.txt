@@ -1,0 +1,43 @@
+
+Nodes
+RoommateInHouse True False
+BurglarInHouse True False
+CarInGarage True False
+DamagedDoor True False
+OpenDoor True False
+---
+
+Edges
+RoommateInHouse CarInGarage
+BurglarInHouse DamagedDoor
+RoommateInHouse OpenDoor
+BurglarInHouse OpenDoor
+---
+
+TABLES
+
+CPT RoommateInHouse
+[] True = 0.05 False = 0.95
+---
+
+CPT BurglarInHouse
+[] True = 0.001 False = 0.999
+---
+
+CPT CarInGarage
+[RoommateInHouse = True] True = 0.95 False = 0.05
+[RoommateInHouse = False] True = 0.01 False = 0.99
+---
+
+CPT DamagedDoor
+[BurglarInHouse = True] True = 0.50 False = 0.50
+[BurglarInHouse = False] True = 0.001 False = 0.999
+---
+
+CPT OpenDoor
+[RoommateInHouse = True BurglarInHouse = True] True = 0.75 False = 0.25
+[RoommateInHouse = True BurglarInHouse = False] True = 0.05 False = 0.95
+[RoommateInHouse = False BurglarInHouse = True] True = 0.25 False = 0.75
+[RoommateInHouse = False BurglarInHouse = False] True = 0.01 False = 0.99
+---
+
