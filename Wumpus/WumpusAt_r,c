@@ -1,0 +1,59 @@
+# This describes a Naive Bayes network for determining whether a given cell contains the Wumpus, based
+# on its neighbors. It assumes the following:
+# * The dungeon grid is 8 cells by 8 cells
+# * The probability of the Wumpus being in a given cell is 1/64
+
+OUTPUTS isWumpus_r_c
+value yes 0.016
+value no  0.984
+
+INPUTS
+# Values are followed by 3 probabilities: p(value | isWumpus_r_c = yes)  p(value | isWumpus_r_c = no)   p(value)
+
+ATTRIBUTE bloodAt_r-1_c
+value yes  1.0 0.08 0.08
+value no   0.0 0.92 0.92
+
+ATTRIBUTE bloodAt_r+1_c
+value yes  1.0 0.08 0.08
+value no   0.0 0.92 0.92
+
+ATTRIBUTE bloodAt_r_c-1
+value yes  1.0 0.08 0.08
+value no   0.0 0.92 0.92
+
+ATTRIBUTE bloodAt_r_c+1
+value yes  1.0 0.08 0.08
+value no   0.0 0.92 0.92
+
+ATTRIBUTE bloodAt_r-2_c
+value yes  1.0 0.0 0.08
+value no   0.0 1.0 0.92
+
+ATTRIBUTE bloodAt_r+2_c
+value yes  1.0 0.0 0.08
+value no   0.0 1.0 0.92
+
+ATTRIBUTE bloodAt_r_c-2
+value yes  1.0 0.0 0.08
+value no   0.0 1.0 0.92
+
+ATTRIBUTE bloodAt_r_c+2
+value yes  1.0 0.0 0.08
+value no   0.0 1.0 0.92
+
+ATTRIBUTE bloodAt_r-1_c+1
+value yes  1.0 0.0 0.08
+value no   0.0 1.0 0.92
+
+ATTRIBUTE bloodAt_r+1_c-1
+value yes  1.0 0.0 0.08
+value no   0.0 1.0 0.92
+
+ATTRIBUTE bloodAt_r-1_c-1
+value yes  1.0 0.0 0.08
+value no   0.0 1.0 0.92
+
+ATTRIBUTE bloodAt_r+1_c+1
+value yes  1.0 0.0 0.08
+value no   0.0 1.0 0.92
