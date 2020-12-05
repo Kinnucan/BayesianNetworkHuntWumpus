@@ -536,11 +536,17 @@ class BayesNet:
         where the evidence is fixed, and it uses the weights to compute
         the probability distribution.  Returns the probability distribution (a dictionary with values of query variable
         for keys and probabilities for values."""
-        pass  # TODO: Implement this using the algorithm from the reading, and the helper functions below
         # get samples
         # set up total weights for each value of query node
         # add sample's weight to appropriate query node value
         # convert to probability distribution
+        weightSums = {}
+        for i in range(numSamples):
+            samp, weight = self.weightedSample(evidenceDict)
+            v = samp[queryNode]
+            weightSums[v] = weight
+        probs = self.normalize(weightSums)
+        return probs
 
 
     def likelihoodWeightingSamples(self, evidenceDict, numSamples):
@@ -554,7 +560,24 @@ class BayesNet:
         """Takes in a dictionary of evidence, and fills it out to be a full event by randomly selecting for those nodes
         not specified. It returns a tuple of the event/sample and a weight that is the product of the probabilities of
         the evidence nodes."""
-        pass  # TODO: Implement this helper using the algorithm from the reading
+        w = 1.0
+        sample = []
+        knowns = {}
+        for node in self.nodeOrder:
+            if (node not in evidence):
+                sampVal = self.sampleNode(node, knowns)
+                knowns[node] = sampVal
+                sample[node] = sampVal
+            elif (node in evidence):
+                sample[node] = evidence[node]
+                probs = []
+                values = self.getNodeValues(node)
+                for nodeVal in values:
+                    nextProb = self.lookupCPT(node, nodeVal, knownDict)
+                    probs.append(nextProb)
+                p = probs[node]
+                w = w * p
+        return sample, w
 
 
     
