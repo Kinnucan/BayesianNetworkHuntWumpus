@@ -17,9 +17,12 @@ class NaiveBayesPlayer(UserPlayer):
         self.fringe = set()
         self._addNeighborsToFringe((self.heroRow, self.heroCol))
         self.pitNaiveNet = NaiveBayes(mode="file", networkFile="findPit8by8.txt")
-        # TODO: Set up a wumpus naive network
+        self.wumpusNaiveNet = NaiveBayes(mode="file", networkFile="WumpusAt_r,c")
         self.currentPath = [] # 'north', 'east', 'east', 'south']
 
+        self.isPitLocProbs = []
+        self.isWumpusLocProbs = []
+        self.isDangerLocProbs = []
 
 
     def nextAction(self, currentSenses):
@@ -41,16 +44,15 @@ class NaiveBayesPlayer(UserPlayer):
             nextAction = 'move'
             nextDir = nextStep
         else:
-            # TODO: modify this so that if an immediate neighbor has a high probability of being the wumpus,
-            # TODO: the action is to shoot in that direction
-            # For each fringe location, use the naive Bayes network to compute how likely it is to contain a pit
-            # TODO: extend this to include a second network to compute how likely a location is to contain the wumpus
-            # TODO: then combine the two to choose a fringe element to travel to
+            # For each fringe location, use the naive Bayes network to compute how likely it is to contain a pit or a wumpus
             print("...Choosing most safe neighbor cell")
-            isPitLocProbs = []
+            self.isPitLocProbs = []
+            self.isWumpusLocProbs = []
+            self.isDangerLocProbs = [] # "danger" means "has either pit or wumpus" -- i.e., "has at least one thing that kills you"
             for loc in self.fringe:
                 influences = self._getInfluences(loc)
                 self.pitNaiveNet.resetNetwork()
+                self.wumpusNaiveNet.resetNetwork()
                 for infl in influences:
                     info = influences[infl]
                     # First handle slime
@@ -60,16 +62,27 @@ class NaiveBayesPlayer(UserPlayer):
                             self.pitNaiveNet.setFeature(attribute, 'yes')
                         else:
                             self.pitNaiveNet.setFeature(attribute, 'no')
-                    # TODO: Add code to handle blood as an influence on Naive Bayes wumpus-finder network
+                    # Then handle blood
+                    attribute = self._makeAttributeName(infl, 'bloodAt')
+                    if 0 < sum([abs(x) for x in infl]) <= 2:  # Blood cares about cells up to 2 away from original
+                        if 'blood' in info:
+                            self.wumpusNaiveNet.setFeature(attribute, 'yes')
+                        else:
+                            self.wumpusNaiveNet.setFeature(attribute, 'no')
 
-                isPitLocProbs.append((loc, self.pitNaiveNet.getNormedOutputProb('yes')))
+                pitProb = self.pitNaiveNet.getNormedOutputProb('yes')
+                wumpusProb = self.wumpusNaiveNet.getNormedOutputProb('yes')
+                dangerProb = pitProb + wumpusProb - (pitProb * wumpusProb)
+                self.isPitLocProbs.append((loc, pitProb))
+                self.isWumpusLocProbs.append((loc, wumpusProb))
+                self.isDangerLocProbs.append((loc, dangerProb))
 
             # Now, sort the locations based on their probabilities, lowest first
-            isPitLocProbs.sort(key=lambda tup: tup[1])  # sort by probability
+            self.isDangerLocProbs.sort(key=lambda tup: tup[1])  # sort by probability
 
-            for (chosenLoc, chosenProb) in isPitLocProbs:
+            for (chosenLoc, chosenProb) in self.isDangerLocProbs:
                 # Try generating paths to cells from best to worst until one is reachable
-                print("Trying to plan to cell at", chosenLoc, "with isPit probability of", chosenProb)
+                print("Trying to plan to cell at", chosenLoc, "with isDanger probability of", chosenProb)
                 # Plan a path from current loc to chosen loc
                 isPathCreated = self.planPath(chosenLoc)
                 if isPathCreated:
@@ -80,6 +93,18 @@ class NaiveBayesPlayer(UserPlayer):
             self.currentPath.pop(0)
             nextAction = 'move'
             nextDir = nextStep
+
+        # If a wumpus is likely in a neighboring cell, ignore all other plans and shoot it
+        wumpusProbDict = dict(self.isWumpusLocProbs)
+        for (dr, dc, dir) in [(-1, 0, 'north'), (1, 0, 'south'), (0, -1, 'west'), (0, 1, 'east')]:
+            neighborToCheck = self.knowledge.makeValidPos(self.heroRow + dr, self.heroCol + dc)
+            prob = wumpusProbDict.get(neighborToCheck)
+            if prob != None:
+                if prob >= .95:
+                    print("Strong probability (" + str(prob) + ") of wumpus due " + dir)
+                    nextAction = "shoot"
+                    nextDir = dir
+
         # Now, let user override if they want
         print("Chosen action is:", nextAction, nextDir)
         resp = input("Hit enter/return if you concur or 'n' to input your own action: ")

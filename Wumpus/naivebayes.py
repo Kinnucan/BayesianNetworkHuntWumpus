@@ -248,6 +248,6 @@ class NaiveBayes:
 if __name__ == "__main__":
     print("===============================================================================")
     print("Demo 1: reading network from a file...")
-    nb1 = NaiveBayes('file', networkFile="findPit8by8.txt")
+    nb1 = NaiveBayes('file', networkFile="WumpusAt_r,c")
     nb1.printNetwork()
 
