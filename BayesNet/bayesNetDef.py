@@ -545,8 +545,8 @@ class BayesNet:
             samp, weight = self.weightedSample(evidenceDict)
             v = samp[queryNode]
             weightSums[v] = weight
-        probs = self.normalize(weightSums)
-        return probs
+        self.normalize(weightSums)
+        return weightSums
 
 
     def likelihoodWeightingSamples(self, evidenceDict, numSamples):
@@ -573,8 +573,9 @@ class BayesNet:
                 probs = []
                 values = self.getNodeValues(node)
                 for nodeVal in values:
-                    nextProb = self.lookupCPT(node, nodeVal, knownDict)
+                    nextProb = self.lookupCPT(node, nodeVal, knowns)
                     probs.append(nextProb)
+                knowns[node] = self.weightedSelection(values, probs)
                 p = probs[node]
                 w = w * p
         return sample, w
