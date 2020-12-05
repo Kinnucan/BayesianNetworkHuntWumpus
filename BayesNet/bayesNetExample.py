@@ -37,3 +37,4 @@ P(RoommateInHouse | OpenDoor and CarInGarage) = 0.96
 P(OpenDoor | DamagedDoor) = 0.10
 P(RoommateInHouse | OpenDoor and not CarInGarage) = 0.01
 '''
+
