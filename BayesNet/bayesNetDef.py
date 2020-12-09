@@ -544,7 +544,10 @@ class BayesNet:
         for i in range(numSamples):
             samp, weight = self.weightedSample(evidenceDict)
             v = samp[queryNode]
-            weightSums[v] = weight
+            if (v not in weightSums):
+                weightSums[v] = weight
+            else:
+                weightSums[v] += weight
         self.normalize(weightSums)
         return weightSums
 
@@ -561,7 +564,7 @@ class BayesNet:
         not specified. It returns a tuple of the event/sample and a weight that is the product of the probabilities of
         the evidence nodes."""
         w = 1.0
-        sample = []
+        sample = {}
         knowns = {}
         for node in self.nodeOrder:
             if (node not in evidence):
@@ -570,13 +573,15 @@ class BayesNet:
                 sample[node] = sampVal
             elif (node in evidence):
                 sample[node] = evidence[node]
+                probRow = {}
                 probs = []
                 values = self.getNodeValues(node)
                 for nodeVal in values:
                     nextProb = self.lookupCPT(node, nodeVal, knowns)
+                    probRow[nodeVal] = nextProb
                     probs.append(nextProb)
                 knowns[node] = self.weightedSelection(values, probs)
-                p = probs[node]
+                p = probRow[evidence[node]]
                 w = w * p
         return sample, w
 
